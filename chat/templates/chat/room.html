@@ -1,0 +1,967 @@
+<!-- chat/templates/chat/room.html -->
+<!DOCTYPE html>
+{% load static %}
+<html>
+   <head>
+      <meta charset="utf-8"/>
+      <title>Chat Room</title>
+      <meta name="viewport" content="width=device-width, iinitial-scale=1,user-scalable=no ">
+      <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Candal" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Sigmar+One" rel="stylesheet">
+      <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script> -->
+      <link href="https://fonts.googleapis.com/css?family=Didact+Gothic|Muli:300|Questrial|Quicksand:300" rel="stylesheet">
+      <!-- <script type="text/javascript" src="scr.js"></script> -->
+
+      <style>
+      @media all and (max-width: 767px)
+      {
+        .header h1{
+          font-size: 3vh;
+        }
+      }
+      *
+      {
+         box-sizing: border-box;
+         margin: 0;
+         padding: 0;
+         font-weight: 300;
+         font-size: .95rem;
+      }
+
+         #chat-log{
+          overflow: auto !important;
+         }
+         #msgroom{
+         display: flex;
+         flex-direction: column;
+         height: 100%;
+         width: 40vw;
+         }
+         .logoutButton
+         {
+          font-size: 20px;
+          color: white;
+         }
+         body {
+         overflow: hidden;
+         }
+         @font-face {
+          font-family: MyFont;
+          src: url(http://www.fontspace.com/billy-argel/black?text=ANAGRAM);
+         }
+         ul, li {
+         list-style-position: inside;
+         }
+         h3 {
+         font-weight: 600;
+         text-align: center;
+         font-size: 1.5rem;
+         }
+         button {
+         border: none;
+         color: white;
+         cursor: pointer;
+         transition: background .3s ease;
+         }
+         .header {
+         position: fixed;
+         left: 0;
+         top:0;
+         width: 100vw;
+         height: 10vh;
+         background-color: #1d5e88;
+         color: #5af9ff;
+         font-size:4vw;
+         font-family: sans-serif;
+         text-align: center;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         }
+         .header h1{
+          font-size: 5vw;
+          font-family: 'Sigmar One', cursive;
+          color: white;
+          letter-spacing: 5px;
+          animation: separateApart 0.8s linear forwards infinite;
+         }
+
+         @keyframes separateApart {
+          0% {
+            letter-spacing: 5px;
+          }
+          50% {
+            letter-spacing: 10px;
+          }
+          100% {
+            letter-spacing: 5px;
+          }
+         }
+
+         .chat_room {
+         /*margin-top: 10vh;*/
+         height: 90vh;
+         width:100vw;
+         left:0;
+         display: flex;
+         flex-direction: row;
+         }
+         .OnlineUsersList {
+         background-color: black;
+         color: white;
+         }
+         .chat__sidebar {
+         overflow-y: scroll;
+         width: 20vw;
+         height: 100%;
+         background-color: black;
+         }
+         .chat__sidebar h3 {
+         color: #3500D3;
+         margin: 10px 20px;
+         text-align: left;
+         }
+         .chat__sidebar ul {
+         list-style-type: none;
+         }
+         .chat__sidebar li {
+         background: #3500D3;
+         border: 1px solid #240090;
+         border-radius: 1vw;
+         padding: 10px;
+         margin: 10px;
+         transition: 0.2s ease-in-out;
+         }
+         .chat__sidebar li:hover {
+         background: #240090;
+         }
+         .chat__sidebar::-webkit-scrollbar {
+         background-color: #190061;
+         }
+         .chat__sidebar::-webkit-scrollbar-thumb {
+         background-color: #3500D3;
+         }
+         .chat__sidebar::-webkit-scrollbar-button {
+         background-color: #240090;
+         }
+         .chat__main {
+         display: flex;
+         flex-direction: column;
+         height: 100vh;
+         width: 65vw;
+         /*background-color: #3a4145;#28485a*/
+         position: absolute;
+         left: 0;
+         top: 10vh;
+         background-color: #4daccd63;
+         }
+         .chat__messages::-webkit-scrollbar {
+         background-color: #190061;
+         }
+         .chat__messages::-webkit-scrollbar-thumb {
+         background-color: #3500D3;
+         }
+         .chat__messages::-webkit-scrollbar-button {
+         background-color: #240090;
+         }
+         .chat__messages {
+         flex-grow: 1;
+         overflow-y: scroll;
+         -webkit-overflow-scrolling: touch;
+         }
+         .chat__footer {
+         background: #2c2c2c;
+         display: flex;
+         flex-direction: row;
+         padding: 10px;
+         height: 10vh;
+         flex-shrink: 0;
+         width: 65vw;
+         position: fixed;
+         bottom: 1.3vh;
+         left: 0;
+         }
+         .chat__footer form {
+         flex-grow: 1;
+         display: flex;
+         }
+         .chat__footer form * {
+         margin-right: 10px;
+         }
+         .chat__messages {
+         list-style-type: none;
+         padding: 10px;
+         }
+         .message {
+         padding: 10px;
+         background-color: #8d59a1;
+         color: white;
+         font-weight: 400;
+         margin: 10px 0;
+         font-family: "advent";
+         border-radius: 1vw;
+         border: 3px solid black;
+         transition: 0.1s ease-in-out;
+         }
+         .message:hover {
+         background-color: #ccc;
+         }
+         .inputArea {
+         background-color: #04101b;
+         color: #49e9b6;
+         font-weight: 400;
+         width: 52vw;
+         font-size: 3.4vh;
+         padding-left: 5px;
+         }
+         .inputArea:focus {
+         border: 2px solid #3500D3;
+         }
+         .sendButton {
+         width: 10vw;
+         background-color: #04d5ef;
+         color: #fcfdff;
+         font-weight: 400;
+         border-radius: 3px;
+         transition: 0.1s ease-in-out;
+         box-sizing: border-box;
+         font-size: 20px;
+         }
+         .sendButton:hover {
+         background-color: #240090;
+         }
+         .message__title {
+         display: flex;
+         margin-bottom: 5px;
+         }
+          .message__title h4 {
+            font-weight: 600;
+            margin-right: 10px;
+            font-family: 'Candal', sans-serif;
+            text-transform: uppercase;
+         }
+         .message__title span {
+         color: #999;
+         }
+         .message__body p {
+          font-family: 'Noto Sans JP', sans-serif;
+         }
+         .room_info {
+         width: 35vw;
+         height: 100vh;
+         background-color: #00bcd4;
+         position: absolute;
+         right: 0;
+         top: 10vh;
+         display: block;
+         }
+         .leaderboard {
+         max-height: 80vh;
+         margin-top:0;
+         display: flex;
+         flex-direction: row;
+         overflow: auto;
+         }
+         .leaderboard::-webkit-scrollbar {
+         background-color: #190061;
+         }
+         .leaderboard::-webkit-scrollbar-thumb {
+         background-color: #3500D3;
+         }
+         .leaderboard::-webkit-scrollbar-button {
+         background-color: #240090;
+         }
+         .leaderboard .userNames {
+         width: 33vw;
+         color: white;
+         display: flex;
+         flex-direction: column;
+         align-content: space-between;
+         }
+         .leaderboard .topScores {
+         width: 7vw;
+         color: black;
+         }
+         .users__list {
+         list-style-type: upper-roman;
+         }
+         .scores__list {
+         list-style-type: none;
+         }
+         .userListElement {
+         background-color: #eee;
+         color: black;
+         border-radius: 0.5vw;
+         margin: 1vh 1vw;
+         padding: 10px;
+         font-size: 1.5vw;
+         transition: 0.2s ease-in-out;
+         }
+         .userListElement:hover {
+         background-color: #3500D3;
+         }
+         .scoresElement {
+         background-color: #353032;
+         color: white;
+         border-radius: 0.5vw;
+         padding: 10px;
+         margin: 1vh 1vw;
+         font-size: 1.5vw;
+         transition: 0.2s ease-in-out;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         }
+         .scoresElement:hover {
+         background-color: #190061;
+         color: white;
+         }
+         .userInfoList {
+         list-style-type: none;
+         width: 48.5vw;
+         height: 8vh;
+         }
+         .displayInfo {
+         background-color: #bae4f3;
+         color: #000;
+         font-family: 'Questrial', sans-serif;
+         border-radius: .2vw;
+         height: 8.2vh;
+         padding: 10px;
+         transition: 0.2s ease-in-out;
+         display: flex;
+         font-size: 2vw;
+         align-items: center;
+         justify-content: center;
+         position: absolute;
+         bottom: 13.5vh;
+         right: 2.5vw;
+         width: 30vw;
+         }
+         .displayInfo:hover {
+         background-color: #c2d7f2;
+         }
+         .infoText {
+         font-size: 1.4vw;
+         text-align: center;
+
+         }
+         @font-face {
+            font-family: 'advent';
+            src: url(advent.ttf) format('opentype');
+        }
+         .logoutButton {
+         background-color: #2c79e4;
+         color: #98fbff;
+         right: 2.2vw;
+         position: absolute;
+         width: 8.2vw;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         text-decoration: none;
+         margin: 0 auto;
+         height: 5.2vh;
+         border-radius: 0;
+         font-size: .99vw;
+         font-family: 'Muli', sans-serif;
+         transition: 0.2s ease-in-out;
+         font-weight: 100;
+         box-shadow: 1.5px 1.5px 6px black;
+         }
+         .logoutButton:hover {
+         background-color: #2142a6;
+         }
+         .message{
+          background-color: #eee;
+          color: black;
+         }
+         .chat-message-input
+         {
+          color: black;
+         }
+
+         #questions{
+          position: absolute;
+          left: 3vw;
+          background:#51757deb;
+          width: 59vw;
+          height: 72vh;
+          top: 4vh;
+          opacity: 1;
+          box-shadow: 3px 8px 15px #2d0909;
+          display: flex;
+          flex-direction: column;
+         }
+         #questions:before,
+         #questions:after
+         {
+          content: '';
+          position: absolute;
+          top: -.9vh;
+          left: -.7vw;
+          width:60.5vw;
+          height:75vh;
+          background: linear-gradient(45deg,#0023fb,#0000ff,#eb28e8,#006dff61,#00b1ff,#bc3bec96,#00BCD4,#7a2dbb,#df1989,#b63be5);
+          background-size:400%;
+          z-index: -1;
+          animation: animate 25s linear infinite;
+         }
+          #questions:after{
+            filter: blur(90px);
+          }
+
+          .room_info h1
+          {
+            display: none;
+          }
+
+          .room_info .closebtn
+          {
+            display: none;
+          }
+
+         @media screen and (max-width: 1050px) {
+          .logoutButton
+          {
+            font-size: 18px;
+          }
+         }
+
+         @media screen and (max-width: 700px) {
+          .logoutButton
+          {
+            font-size: 12px;
+          }
+         }
+
+         @media (max-width: 600px) {
+         * {
+         font-size: 1rem;
+         }
+         .header > h1
+         {
+          animation: none;
+          transform: translateX(-20%);
+         }
+         .logoutButton
+         {
+          font-size: 10px;
+         }
+         .userListElement{
+          width: 155px;
+          font-size: 2.5vh
+         }
+         /*.infoText{
+          font-size: 2.3vh;
+         }*/
+         .message__title h4{
+          font-size: 2.6vh;
+         }
+         .message__title{
+          margin-bottom: 5px;
+         }
+         .message{
+          margin: 5px 0;
+          padding: 5px;
+         }
+         .message__body p{
+          font-size: 3vh;
+          font-family: 'Shadows Into Light', cursive;
+         }
+         #chat-message-submit{
+          transform: translateX(-2vh);
+          line-height: 0;
+          text-align: center;
+          font-size: 12px;
+          width: 11.5vw;
+          height:5vh;
+
+         }
+         .header h1{
+          font-size: 7.4vw;
+          left: 25vw;
+          position: absolute;
+         }
+         .scoresElement{
+          font-size: 2.5vh;
+          width: 10vh
+         }
+         .leaderboard
+         {
+          height: 100vh;
+          overflow-y: hidden;
+         }/*
+         .leaderboard .topScores
+         {
+          position: relative;
+          top: 40px;
+          left: -100px;
+         }*/
+         .logoutButton{
+          font-size: 12px;
+          width: 15vw;
+          height: 4.3vh;
+         }
+         .inputArea{
+          transform: translateX(-1vh);
+          width: 49vw;
+          height:5.3vh;
+         }
+         .chat__footer form {
+         margin-bottom: 10px;
+         }
+         .chat__footer button {
+         margin-right: 0px;
+         }
+
+         .chat__main{
+          width:100vw;
+         }
+         #questions{
+          width: 93vw;
+          top: 5vh;
+         }
+
+         .room_info
+         {
+          width: 0;
+         }
+
+         .displayInfo
+         {
+          /*display: block;*/
+          position: absolute;
+          bottom: 2vh;
+          left: 2vw;
+          width: 90%;
+          font-size: 11px;
+          height: 11vh;
+         }
+        /* .questionsAppear
+         {
+          width: 90vw;
+         }*/
+
+         #questions:before
+         {
+          width: 95vw;
+          top: -1.2vh;
+          height: 73vh;
+         }
+
+         .chat__footer
+         {
+          width: 100vw;
+         }
+
+         .inputArea
+         {
+          width: 83vw;
+         }
+
+         .room_info
+          {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            right: 0;
+            background: #00bcd4;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+          }
+
+          .room_info > h1
+          {
+            position: absolute;
+            top: 5vh;
+            left: 5vw;
+            color: #EC407A;
+            font-size: 20px;
+            font-family: 'Shadows Into Light', cursive;
+            display: block;
+          }
+
+          .openHam
+          {
+            position: absolute;
+            top: -0.5vh;
+            left: 2vw;
+            font-size: 35px;
+            color: white;
+          }
+
+          .openHam:hover
+          {
+            cursor: pointer;
+          }
+
+          .closebtn
+          {
+            font-size: 30px;
+            color: white;
+            position: absolute;
+            top: 1vh;
+            right: 1vw;
+            text-decoration: none;
+
+          }
+
+          .closebtn:hover
+          {
+            color: #C2185B;
+          }
+
+          .topScores
+          {
+            position: relative;
+            left: 10px;
+          }
+
+          .infoText
+          {
+            font-size: 12px;
+            color: black;
+            text-align: center;
+          }
+    }
+
+    @media screen and (max-width: 400px) {
+      .topScores
+      {
+        position: relative;
+        left: 5vw;
+        height: 10vh;
+      }
+    }
+
+
+
+
+
+         /* @keyframes animate{
+            0%
+            {
+              background-position: 0 0;
+            }
+            50%
+            {
+              background-position: 400% 0;
+            }
+            100%
+            {
+              background-position: 0 0;
+            }
+          }*/
+    /*.ball {
+      position: absolute;
+      border-radius: 100%;
+      opacity: 0.7;
+    }*/
+
+      </style>
+   </head>
+
+
+
+   <body>
+    <span style="display:none;" id="user-username">{{ request.user.username }}</span>
+      <div class="header">
+         <h1>ANAGRAM</h1>
+
+         <a class="logoutButton" href="{% url 'logout' %}">Log out</a>
+      </div>
+
+      <div class="chat_room">
+
+         <div class="chat__main"  id="particles-js">
+
+
+            <div id="questions" class="questionsAppear">
+              <ol id="chat-log" class="chat__messages"></ol>
+          </div>
+
+            <div class="chat__footer">
+               <form id="message-form" onsubmit="return false">
+                  <input class="inputArea" id="chat-message-input" name="message" type="text" placeholder="Message" autocomplete="off"/>
+                  <input type="button" class="sendButton" id="chat-message-submit" value="Send">
+               </form>
+            </div>
+         </div>
+         <div class="room_info">
+            <h1>LEADERBOARD</h1>
+            <a href="#" class="closebtn" onclick="closeNav()">&times;</a>
+            <div class="leaderboard">
+               <div class="userNames">
+                  <ol class="users__list">
+                  </ol>
+               </div>
+               <div class="topScores">
+                  <ol class="scores__list">
+                  </ol>
+               </div>
+            </div>
+            <div class="user__info">
+               <ul class="userInfoList">
+                  <li class="displayInfo"></li>
+               </ul>
+            </div>
+       </div>
+      </div>
+
+      <span class="openHam" onclick="openNav()">&#9776;</span>
+
+      <script src="{% static 'chat/particles.js'%}" type="text/javascript"></script>
+      <script src="{%static 'chat/app.js'%}" type="text/javascript"></script>
+
+   </body>
+
+   <script type="text/javascript">
+
+    function openNav() {
+      document.getElementsByClassName("room_info")[0].style.width = '220px';
+      document.getElementsByClassName("closebtn")[0].style.display = 'block';
+    }
+
+    function closeNav() {
+      document.getElementsByClassName("room_info")[0].style.width = '0';
+    }
+
+   </script>
+
+   <script>
+      var roomName = {{ room_name_json }};    //in views we used room_name_json  in room view as
+      //console.log(roomName);                  // 'room_name_json':mark_safe(json.dumps(room_name)
+
+
+
+      //creating a Web Socket connection
+      var chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/');
+
+
+
+      chatSocket.onopen = function (message) {
+
+
+          console.log("Connected to chat socket");// Display user friendly messages for the successful establishment of
+          //console.log("Got websocket message " + message.data); //connection
+          //var data = JSON.parse(message.data);
+          //var ok_msg = "";
+          //ok_msg = "<div class='contextual-message text-muted'>" + data.username + " joined the room!" +       " </div>"
+      };
+      var scoredisp;
+      var myscore;
+      chatSocket.onmessage = function(event) {
+          var data = JSON.parse(event.data);
+          var message = data['message'];
+          var msg_typed = data['msg_typed'];
+          var msg_typed = true;
+          var other_user = "rashi";
+          var username = data['username'];
+          var room_id = data['room_id'];
+          //var ques = data['ques'];
+          var dict_ = data['dict_'];
+
+
+          console.log("Got websocket message " + event.data);
+          //var msgdiv = $("#room-" + data.room_id + " .messages");
+          if (message==""){
+               var ok_msg = "";
+               ok_msg = "<div class='message'>" +"<span>" + data.room_id+"</span">+
+                                          "<span class='username'>" + data.username + "</span>" +
+                                           "<span class='body'>" + data.message + "</span>" +
+                                           "</div>";
+
+
+              //msgdiv.append(ok_msg);
+              //msgdiv.scrollTop(msgdiv.prop("scrollHeight"));
+              console.log(data.username + ":" + data.message);
+              //console.log(ok_msg + 'this is ok_msg');
+              //chatSocket.send("from server :" +message);
+              //document.querySelector('#chat-log').value += (message + '\n');
+              document.querySelector('#chat-log').value += (data.username +':'+ message + '\n');
+              //document.querySelector('#chat-log').value += (user + '\n');
+              }
+             else {
+             var ok_msg = "";
+               ok_msg = "<div class='message'>" +"<span>" + data.room_id+"</span">+
+                                         "<span class='username'>" + data.username + "</span>" +
+                                           "<span class='body'>" + data.message + "</span>" +
+                                           "</div>";
+              //msgdiv.append(ok_msg);
+              //msgdiv.scrollTop(msgdiv.prop("scrollHeight"));
+
+
+              console.log(data.username + ":" + data.message);
+              //console.log(ok_msg + 'this is ok_msg');
+              //chatSocket.send("from server :" +message);
+              //document.querySelector('#chat-log').value += (message + '\n');
+              document.querySelector('#chat-log').value += (data.username +':'+ message + '\n');
+              //document.querySelector('#chat-log').value += (user + '\n');
+
+               }
+            //CODE STARTS OF NIKHIL
+      var Users = [],scores = [];
+      for(let i=0;i<dict_['data'].length;i++)
+      {
+        Users[i] = dict_['data'][i][0];
+        scores[i] = dict_['data'][i][1];
+      }
+
+          var Senders = [];
+          var messages = [];
+          var createdAt = [];
+          var temp;
+          messages.push(message);
+          Senders.push(username);
+       for(let i=0;i<Users.length-1;i++)
+        {
+          for(let j=i+1;j<Users.length;j++)
+            {
+              if(scores[j]>scores[i])
+                {
+                  temp = scores[j];
+                  scores[j] = scores[i];
+                  scores[i]=temp;
+                  temp = Users[j];
+                  Users[j] = Users[i];
+                  Users[i] = temp;
+                }
+            }
+        }
+        console.log(scores,Users);
+          var topUserNames = [];
+          var topUserScores = [];
+          for(let i=0;i<Users.length;i++)
+      {
+        topUserNames[i] = Users[i];
+        topUserScores[i] = scores[i];
+      }
+        for(let i=0;i<Users.length;i++)
+        {
+          if(Users[i]==data['username'])
+          {
+            scoredisp = scores[i];
+          }
+        }
+          var UserInfo = {
+              Name: data['username'],
+              Score: scoredisp
+          };
+
+
+          //TO DISPLAY MESSAGES
+          for(var j=0; j<messages.length; j++) {
+              var messageList = document.createElement('li');
+              messageList.className = 'message';
+              var titleDiv = document.createElement('div');
+              titleDiv.className = 'message__title';
+              var Sender = document.createElement('h4');
+              var messageBody = document.createElement('div');
+              messageBody.className = 'message__body';
+              var text = document.createElement('p');
+
+              var senderText = document.createTextNode(Senders[j]);
+              var messageText = document.createTextNode(messages[j]);
+              Sender.appendChild(senderText);
+              text.appendChild(messageText);
+
+              titleDiv.appendChild(Sender);
+              messageList.appendChild(titleDiv);
+
+              messageBody.appendChild(text);
+              messageList.appendChild(messageBody);
+              var messageMainList = document.getElementById('chat-log');
+              messageMainList.appendChild(messageList);
+              var element = document.getElementById("chat-log");
+          }
+          //TO DISPLAY LEADERBOARD AND PLAYER INFO
+          var userNames = document.getElementsByClassName('userNames')[0];
+          var scores = document.getElementsByClassName('topScores')[0];
+          var usersList = document.getElementsByClassName('users__list')[0];
+          var scoresList = document.getElementsByClassName('scores__list')[0];
+          usersList.innerHTML="";
+          scoresList.innerHTML="";
+          for(var k=0; k<topUserNames.length; k++) {
+              var list = document.createElement('li');
+              var userNamesText = document.createTextNode(topUserNames[k]);
+              list.className = 'userListElement';
+              list.appendChild(userNamesText);
+              usersList.appendChild(list);
+
+              var scores = document.createElement('li');
+              var scoresText = document.createTextNode(topUserScores[k]);
+              scores.className = 'scoresElement';
+              scores.appendChild(scoresText);
+              scoresList.appendChild(scores);
+          }
+          document.getElementById("chat-log").scrollBy(0,1500);
+          var Info = document.getElementsByClassName('user__info')[0];
+          var userInfolist = document.getElementsByClassName('userInfoList')[0];
+          var displayInfo = document.getElementsByClassName('displayInfo')[0];
+      //        var NameNode = document.createTextNode(UserInfo.Name);
+      //        var ScoreNode = document.createTextNode(UserInfo.Score);
+
+          var myname = document.getElementById('user-username').innerHTML;
+          for(let i=0;i<topUserNames.length;i++)
+          {
+            if(topUserNames[i]==myname)
+            {
+              myscore = topUserScores[i];
+            }
+          }
+          var infoMessage = document.createElement('p');
+          infoMessage.className = 'infoText';
+          var infoText = document.createTextNode(`Hey ${myname}, your score is ${myscore}`);
+          infoMessage.appendChild(infoText);
+          displayInfo.innerHTML="";
+          displayInfo.appendChild(infoMessage);
+          userInfolist.appendChild(displayInfo);
+          Info.appendChild(userInfolist);
+
+      };
+
+          //if (data['is_logged_in']) {document.querySelector('#chat-log').value += (data.username + ': Online');}
+          //else {document.querySelector('#chat-log').value += (data.username + ': Offline');}
+
+
+      chatSocket.onclose = function() {
+          console.error('Chat socket closed unexpectedly');
+          setTimeout(function() {
+        connect();
+      }, 1000);
+      };
+      document.querySelector('#chat-message-input').focus();
+            document.querySelector('#chat-message-input').onkeyup = function(e) {
+                if (e.keyCode == 13) {  // enter, return
+                  e.preventDefault();
+                    document.querySelector('#chat-message-submit').click();
+                }
+            };
+            document.querySelector('#chat-message-submit').onclick = function(event) {
+                 var messageInputDom = document.querySelector('#chat-message-input');
+                 var message = messageInputDom.value;
+                var user_ = document.getElementById('user-username').innerHTML;
+
+                    DATA = chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'other_user'   : "rashi",
+                    "user_"     :user_,
+                    'msg_typed':true
+                 }));
+                 console.log("daaatttaaaaaa");
+                 console.log(DATA);
+                //messageUser.value = ''; //
+                messageInputDom.value = '';
+                setTimeout(function(){document.getElementById("chat-log").scrollBy(0,1500);},200);
+
+          };
+          //following part shows the background animation effect
+
+   </script>
+</html>
