@@ -6,13 +6,19 @@
       <meta charset="utf-8"/>
       <title>Chat Room</title>
       <meta name="viewport" content="width=device-width, iinitial-scale=1,user-scalable=no ">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
       <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css?family=Candal" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css?family=Sigmar+One" rel="stylesheet">
-      <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
       <script src="//cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script> -->
       <link href="https://fonts.googleapis.com/css?family=Didact+Gothic|Muli:300|Questrial|Quicksand:300" rel="stylesheet">
-      <!-- <script type="text/javascript" src="scr.js"></script> -->
+      <script>
+        $(document).ready(function() {
+          $(".sendButton").click(function() {
+            $(this).val("Send");
+          });
+        });
+      </script>
 
       <style>
       @media all and (max-width: 767px)
@@ -32,6 +38,10 @@
 
          #chat-log{
           overflow: auto !important;
+         }
+         .startGame
+         {
+           display: none;
          }
          #msgroom{
          display: flex;
@@ -258,11 +268,12 @@
          display: block;
          }
          .leaderboard {
-         max-height: 80vh;
+         max-height: 70vh;
          margin-top:0;
          display: flex;
          flex-direction: row;
          overflow: auto;
+         overflow: scroll;
          }
          .leaderboard::-webkit-scrollbar {
          background-color: #190061;
@@ -388,22 +399,23 @@
           left: 3vw;
           background:#51757deb;
           width: 59vw;
-          height: 72vh;
+          height: 69vh;
           top: 4vh;
           opacity: 1;
           box-shadow: 3px 8px 15px #2d0909;
           display: flex;
           flex-direction: column;
-         }
+        }
+
          #questions:before,
          #questions:after
          {
           content: '';
           position: absolute;
-          top: -.9vh;
+          top: -1.3vh;
           left: -.7vw;
           width:60.5vw;
-          height:75vh;
+          height: 75vh;
           background: linear-gradient(45deg,#0023fb,#0000ff,#eb28e8,#006dff61,#00b1ff,#bc3bec96,#00BCD4,#7a2dbb,#df1989,#b63be5);
           background-size:400%;
           z-index: -1;
@@ -440,6 +452,22 @@
          @media (max-width: 600px) {
          * {
          font-size: 1rem;
+         }
+         .startGame
+         {
+           display: block;
+           width: auto;
+           height: auto;
+           padding: 10px;
+           background: black;
+           color: white;
+           font-size: 20px;
+           position: fixed;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           z-index: 10;
+           box-shadow: 5px 5px 5px white;
          }
          .header > h1
          {
@@ -578,19 +606,19 @@
 
           .room_info > h1
           {
-            position: absolute;
-            top: 5vh;
+            position: relative;
+            top: 1vh;
             left: 5vw;
             color: #EC407A;
-            font-size: 20px;
+            font-size: 23px;
             font-family: 'Shadows Into Light', cursive;
             display: block;
           }
 
           .openHam
           {
-            position: absolute;
-            top: -0.5vh;
+            position: fixed;
+            top: 1.5vh;
             left: 2vw;
             font-size: 35px;
             color: white;
@@ -671,6 +699,7 @@
 
    <body>
     <span style="display:none;" id="user-username">{{ request.user.username }}</span>
+    <!-- <button class="startGame" onclick="startGame()">Start</button> -->
       <div class="header">
          <h1>ANAGRAM</h1>
 
@@ -688,8 +717,8 @@
 
             <div class="chat__footer">
                <form id="message-form" onsubmit="return false">
-                  <input class="inputArea" id="chat-message-input" name="message" type="text" placeholder="Message" autocomplete="off"/>
-                  <input type="button" class="sendButton" id="chat-message-submit" value="Send">
+                  <input class="inputArea" id="chat-message-input" name="message" type="text" placeholder="Answer" autocomplete="off"/>
+                  <input type="button" class="sendButton" id="chat-message-submit" value="Start" onclick="changeName()">
                </form>
             </div>
          </div>
@@ -722,6 +751,8 @@
    </body>
 
    <script type="text/javascript">
+
+   window.alert("Please use your own internet connection. Website will not work on BITS intranet");
 
     function openNav() {
       document.getElementsByClassName("room_info")[0].style.width = '220px';

@@ -534,6 +534,7 @@ button:focus
   {
     width: 100vw;
     height: 100vh;
+    overflow: hidden;
   }
 
   .room
@@ -544,6 +545,8 @@ button:focus
 
   .visual
   {
+    position: absolute;
+    left: 24vw;
     width: 76vw;
     height: 100vh;
   }
@@ -633,12 +636,73 @@ button:focus
     display: none;
   }
 
-  #container
+  .containerBoard
   {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
   }
+
+  @media screen and (max-width: 600px) and (max-height: 330px) {
+    .room
+    {
+      width: 30vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .visual
+    {
+      position: absolute;
+      left: 30vw;
+      width: 70vw;
+      height: 100vh;
+    }
+
+    .enterRoom
+    {
+      display: none;
+    }
+
+    .anagram
+    {
+      left: 32vw;
+      font-size: 25px;
+    }
+
+    .anagram > div
+    {
+      width: 35px;
+      height: 40px;
+      font-size: 18px;
+    }
+
+    #Rules
+    {
+      left: 25vw;
+      top: 68vh;
+      transform: scale(0.6);
+    }
+
+    #developer
+    {
+      left: 42vw;
+      top: 68vh;
+      transform: scale(0.6);
+    }
+
+    .btn
+    {
+      left: 70vw;
+      top: 68vh;
+      transform: scale(0.6);
+    }
+
+    .newsline > p{
+      font-size: 20px;
+    }
 }
 
 @media screen and (max-width: 450px) and (max-height: 860px) {
@@ -796,6 +860,11 @@ button:focus
   .newsline > h1
   {
     font-size: 30px;
+  }
+
+  .newsline > p
+  {
+    font-size: 15px;
   }
 
   .enterRoom
@@ -984,70 +1053,8 @@ button:focus
     top: 10vh;
     text-align: center;
     justify-content: center;
-    left: 8vw;
-    font-size: 7vw;
-    color: #de2323;
-    text-shadow: 0 5px 10px #33ab89;
-  }
-}
-
-@media screen and (max-width: 600px) and (max-height: 330px) {
-  .room
-  {
-    width: 30vw;
-  }
-
-  .visual
-  {
-    position: absolute;
-    left: 30vw;
-    width: 70vw;
-    height: 100vh;
-  }
-
-  .enterRoom
-  {
-    display: none;
-  }
-
-  .visual
-  {
-    width: 70vw;
-    left: 30vw;
-  }
-
-  .anagram
-  {
-    left: 32vw;
-    font-size: 25px;
-  }
-
-  .anagram > div
-  {
-    width: 35px;
-    height: 40px;
-    font-size: 18px;
-  }
-
-  #Rules
-  {
-    left: 25vw;
-    top: 68vh;
-    transform: scale(0.6);
-  }
-
-  #developer
-  {
-    left: 42vw;
-    top: 68vh;
-    transform: scale(0.6);
-  }
-
-  .btn
-  {
-    left: 70vw;
-    top: 68vh;
-    transform: scale(0.6);
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 
